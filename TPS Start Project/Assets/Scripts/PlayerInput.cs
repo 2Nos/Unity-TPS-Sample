@@ -2,10 +2,11 @@
 
 public class PlayerInput : MonoBehaviour
 {
-    public string fireButtonName = "Fire1";
-    public string jumpButtonName = "Jump";
     public string moveHorizontalAxisName = "Horizontal";
     public string moveVerticalAxisName = "Vertical";
+
+    public string fireButtonName = "Fire1";
+    public string jumpButtonName = "Jump";
     public string reloadButtonName = "Reload";
 
     public Vector2 moveInput { get; private set; }
@@ -16,7 +17,7 @@ public class PlayerInput : MonoBehaviour
     private void Update()
     {
         if (GameManager.Instance != null
-            && GameManager.Instance.isGameover)
+            && GameManager.Instance.isGameover) //싱글톤과 함께 죽었을 경우 유저 입력을 전부 무시하게 만듬
         {
             moveInput = Vector2.zero;
             fire = false;

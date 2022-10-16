@@ -4,6 +4,7 @@ public class PlayerMovement : MonoBehaviour
 {
     private CharacterController characterController; //CharacterController 컴포넌트는 자동으로 중력을 받아 아래로 떨어지지 않음(RigidBody를 사용하지 않고 캐릭터를 움직이게하기)
     private PlayerInput playerInput;
+    private PlayerShooter playerShooter;
     private Animator animator;
     
     private Camera followCam;
@@ -26,6 +27,7 @@ public class PlayerMovement : MonoBehaviour
     private void Start()
     {
         playerInput = GetComponent<PlayerInput>(); //입력값 가져오기
+        playerShooter = GetComponent<PlayerShooter>();
         animator = GetComponent<Animator>();
         characterController = GetComponent<CharacterController>(); //실제로 움직임을 적용할 컴포넌트
         followCam = Camera.main;
@@ -33,12 +35,15 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate() //물리 갱신 주기
     {
-        if (currentSpeed > 0.2f || playerInput.fire) Rotate(); //플레이어 회전
+        if (currentSpeed > 0.2f || playerInput.fire || playerShooter.aimState == PlayerShooter.AimState.HipFire) Rotate(); //플레이어 회전
         //currentSpeed > 0.2f는 아예 움직이지 않을때는 카메라를 돌려 캐릭터 구경할 수 있지만 조금이라도 움직이는 입력값이 들어오면 바로 캐릭터가 카메라가보는 정면으로 회전
         //playerInput.fire는 무기 발사 시 플레이어가 플레이어 카메라가 바라보는 방향으로 회전
         Move(playerInput.moveInput); //플레이어 움직임
-        
-        if (playerInput.jump) Jump();
+
+        if (playerInput.jump)
+        {
+            Jump();
+        }
     }
 
     private void Update() // 물리적으로 정확한 값을 수치로 연산할때는 오차가 발생하는 문제가 생김
@@ -53,7 +58,7 @@ public class PlayerMovement : MonoBehaviour
         //moveInput미리 노멀라이즈되어 있음 
         //moveDirection은 방향값으로 사용하는것이고 Vector3.Normalize를하는 이유는 값이 1이 아닌 경우가 발생할 수도 있으므로 적용
 
-        var smothTime = characterController.isGrounded ? speedSmoothTime : speedSmoothTime / airControlPercent; //현재 속도에서 타겟속도로 부드럽게 변환하는값
+        var smothTime = characterController.isGrounded ? speedSmoothTime : speedSmoothTime / airControlPercent; //speedSmoothTime 현재 속도에서 타겟속도로 부드럽게 변환하는값 airControlPercent공중에서의 움직일 수 있는 힘의세기 퍼센트
         //바닥에 존재하는지 확인하고 speedSmoothTime를 사용하고 airControlPercent는 1보다 같거나 작은값(0.01~1)인데
         //1보다 작은값으로 어떤값을 나누게되면 값이 커지게됨
         //바닥에 닿아있지 않을 경우 speedSmoothTime을 늘려 변환하는 지연시간이 늘어나고(targetSpeed에 도달하는 시간이 길어졌다는말) 그만큼 키가 안먹히게된다.
@@ -69,7 +74,7 @@ public class PlayerMovement : MonoBehaviour
         //여기서 Time.deltaTime은 Move(Vector2 moveInput)함수가 FixedUpdate에서 호출되기에 자동으로 Time.Fixeddeltatime으로 변환되어진다
 
         if(characterController.isGrounded) //플레이어가 바닥에 닿아 있다면 떨어지는 속도값을 0으로 초기화 시켜줘야함 해주지 않으면 속도가 -로 계속 커질경우 바닥이 존재해도 뚫고 아래로 떨어짐
-        {                                   //characterController.isGrounded는 characterController에서 제공하는 바닥에 닿아있는지 자동으로 알려주는 Bool(불리언)값
+        {                                   //characterController.isGrounded는 characterController에서 제공하는 바닥에 닿아있는지 자동으로 알려주는 Bool값
             currentVelocityY = 0f;
         }
     }

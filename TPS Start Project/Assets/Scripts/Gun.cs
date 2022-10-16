@@ -58,7 +58,7 @@ public class Gun : MonoBehaviour
 
     public void Setup(PlayerShooter gunHolder) //총에게 총의 주인이 누구인지 알려주는 역할
     {
-        this.gunHolder = gunHolder; //입력받은 gunHolder를 자기자신의 gunHolder에 할당하여
+        this.gunHolder = gunHolder; //입력받은 gunHolder를 자기자신의 gunHolder에 할당
         excludeTarget = gunHolder.excludeTarget; //총의 주인이 쏘지 않기로한 레이어를 할당
     }
 
@@ -80,7 +80,6 @@ public class Gun : MonoBehaviour
 
         if(state == State.Ready && Time.time >= lastFireTime + timeBetFire) //발사가능한 상태이고 현재 시간이 마지막발사 시점에서 발사간격을 더한것보다 더 많은 시간이 흘렀을 경우
         {                                                                   //발사가능 
-            //현재 여기가 문제되는상황
             var xError = Utility.GedRandomNormalDistribution(0f, currentSpread); //정규분포에 의한 오차 x방향으로 오차(기준, 정규분포평평하게만드는정도)
             var yError = Utility.GedRandomNormalDistribution(0f, currentSpread);
 
@@ -111,7 +110,7 @@ public class Gun : MonoBehaviour
         {
             var target = hit.collider.GetComponent<IDamageable>(); //IDamageable메세지를 받아왔다면 데미지를 줄 수 있는 대상이라는것
 
-            if(target != null) //초기화
+            if(target != null) 
             {
                 DamageMessage damageMessage;
 
@@ -123,15 +122,16 @@ public class Gun : MonoBehaviour
                 // 상대방의 OnDamage 함수를 실행시켜서 상대방에게 데미지 주기
                 target.ApplyDamage(damageMessage);
             }
-            else
+            else //IDamageable을 가지고 있지 않는 타입이면 이펙트를 직접 재생
             {
-                //EffectManager.Instance.PlayHitEffect(hit.point, hit.normal, hit.transform);
+                EffectManager.Instance.PlayHitEffect(hit.point, hit.normal, hit.transform);
+                //위 if문에서는 충돌한 대상이 데미지를 줄 수 있는 IDamageable을 가지고있는 타입이면 스스로 파티클 효과를 생성할것임
             }
             hitPostion = hit.point;
         }
         else
         {
-            hitPostion = startPoint + direction * fireDistance; //RayCast충돌이 일어나지 않았을 경우 총알이 최대 사정거리까지 이동한 위치를 hitPostion으로 사용
+            hitPostion = startPoint + direction * fireDistance; //RayCast충돌이 일어나지 않았을 경우 총알이 최대 사정거리까지 이동한 위치를 hitPosition으로 사용
         }
 
         StartCoroutine(ShotEffect(hitPostion));
